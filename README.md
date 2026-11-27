@@ -6,6 +6,8 @@ An otherwise lethal body shot can leave an eligible human NPC alive and wounded.
 
 The Marshes in Romeo, captured during the native test session that checked rescue eligibility and medkit transfer.
 
+[Downloads and release notes](https://github.com/noahcabral/unholys-wounded-npc-rescue-mod/releases)
+
 ## Game versions
 
 | Game | Setup | Verification |
