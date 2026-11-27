@@ -1,0 +1,22 @@
+local function after_calculations(injury, target, bone_id)
+    local actor = db.actor
+    local shooter = injury.draftsman
+    if injury.type ~= hit.fire_wound or not (actor and shooter and shooter:id() == actor:id()) then return end
+    if not target or not IsStalker(target) or target:id() == actor:id() then return end
+    if not injury.power or injury.power <= 0 or injury.power ~= injury.power then return end
+
+    local remaining = target.health - injury.power
+    if remaining > 0 then return end
+    local stabilized = unholy_npc_rescue.remaining_health(target, bone_id, remaining)
+    if stabilized > remaining then
+        -- Keep native hit dispatch, but put the NPC in the health range expected
+        -- by its configured wound dialogue and prevent the same hit adding a wound.
+        target:set_health_ex(stabilized)
+        injury.power = 0
+    end
+end
+
+function on_game_start()
+    if not (callbacks_gameobject and CBeforeHitAfterCalcs) or XrrPlayers or grok_bo then return end
+    RegisterScriptCallback("on_before_hit_after_calcs", after_calculations)
+end

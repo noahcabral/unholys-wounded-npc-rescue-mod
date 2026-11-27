@@ -1,0 +1,41 @@
+local rescue_health = 0.02
+local heavy_states = { wounded_heavy = true, wounded_heavy_2 = true, wounded_heavy_3 = true }
+local head_bones = { "bip01_neck", "bip01_head", "eye_left", "eye_right", "eyelid_1", "jaw_1" }
+
+function is_player_replica(npc)
+    local players = XrrPlayers and XrrPlayers()
+    return npc and players and players:IsPlayerDummy(npc:id())
+end
+
+function is_head_hit(npc, bone_id)
+    local index = tonumber(bone_id)
+    if not index or index < 0 or index >= 65535 or index % 1 ~= 0 then return true end
+    if index >= 14 and index <= 19 then return true end
+    for _, name in ipairs(head_bones) do
+        if npc:get_bone_id(name, false) == index then return true end
+    end
+    return false
+end
+
+local function can_be_stabilized(npc, bone_id)
+    if (XrrIsHost and not XrrIsHost()) or not IsStalker(npc) or not npc:alive() then return false end
+    if (db.actor and npc:id() == db.actor:id()) or is_player_replica(npc) or is_head_hit(npc, bone_id) then return false end
+    if npc:critically_wounded() or npc:in_smart_cover() or xr_wounded.is_wounded(npc) then return false end
+
+    local stored = db.storage[npc:id()]
+    local wounded = stored and stored.wounded
+    if not (wounded and wounded.wounded_set and wounded.help_dialog and wounded.enable_talk
+        and not wounded.not_for_help and wounded.wound_manager) then
+        return false
+    end
+    local state = wounded.wound_manager:process_hp_wound(rescue_health * 100)
+    return heavy_states[state] == true
+end
+
+function remaining_health(npc, bone_id, remaining)
+    if remaining <= 0 and can_be_stabilized(npc, bone_id) then
+        npc.bleeding = 0
+        return rescue_health
+    end
+    return remaining
+end
