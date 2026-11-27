@@ -2,4 +2,4 @@
 
 Treat eligible stalkers after a lethal body shot with the game's existing medkit dialogue. Headshots keep their usual damage behavior.
 
-Supports single-player and Romeo co-op. In co-op, the host handles rescues.
+Available for Anomaly, GAMMA, and Romeo. Play in single-player or in Romeo co-op, where the host handles rescues.
